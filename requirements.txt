@@ -1,0 +1,11 @@
+requests
+dnspython
+python-nmap
+python-whois
+colorama
+beautifulsoup4
+urllib3
+fastapi
+uvicorn
+websockets
+python-multipart
