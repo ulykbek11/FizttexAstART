@@ -24,7 +24,7 @@ function App() {
     // So we connect to ws://localhost:5173/ws/scan/... (Vite dev server)
     // which forwards to ws://localhost:8000/ws/scan/...
     
-    const wsUrl = `ws://${window.location.host}/ws/scan/${domain}`;
+    const wsUrl = `${protocol}//${window.location.host}/ws/scan/${domain}`;
     
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
