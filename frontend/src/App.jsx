@@ -16,15 +16,10 @@ function App() {
     setLogs([]);
     setResults(null);
     
-    // Connect to WebSocket
-    // Use the relative path which will be proxied by Vite
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    // If running in dev with proxy, we can use the same host but with ws protocol
-    // However, Vite proxy forwards /ws to localhost:8000
-    // So we connect to ws://localhost:5173/ws/scan/... (Vite dev server)
-    // which forwards to ws://localhost:8000/ws/scan/...
+    // Connect to WebSocket directly to backend to avoid proxy issues
+    const wsUrl = `ws://localhost:8000/ws/scan/${domain}`;
     
-    const wsUrl = `${protocol}//${window.location.host}/ws/scan/${domain}`;
+    console.log(`Connecting to WebSocket: ${wsUrl}`);
     
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
@@ -54,7 +49,7 @@ function App() {
 
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
-      setLogs(prev => [...prev, { message: 'Ошибка подключения', level: 'ERROR' }]);
+      setLogs(prev => [...prev, { message: `Ошибка подключения к ${wsUrl}`, level: 'ERROR' }]);
       setIsScanning(false);
     };
   };
