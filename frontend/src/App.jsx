@@ -16,8 +16,9 @@ function App() {
     setLogs([]);
     setResults(null);
     
-    // Connect to WebSocket directly to backend to avoid proxy issues
-    const wsUrl = `ws://localhost:8000/ws/scan/${domain}`;
+    // Connect to WebSocket directly to backend
+    // Use window.location.hostname to support access from other devices (not just localhost)
+    const wsUrl = `ws://${window.location.hostname}:8000/ws/scan/${domain}`;
     
     console.log(`Connecting to WebSocket: ${wsUrl}`);
     
@@ -67,7 +68,7 @@ function App() {
           <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan to-primary tracking-tight">
             Ultimate Security Analyzer
           </h1>
-          <p className="text-gray-400 text-lg">Advanced vulnerability scanning and security assessment tool</p>
+          <p className="text-gray-400 text-lg">Продвинутый инструмент сканирования уязвимостей и оценки безопасности</p>
         </div>
 
         {/* Search Bar */}
@@ -151,7 +152,7 @@ function App() {
                   results.risk_level === 'MEDIUM' ? 'bg-warning/20 text-warning' :
                   'bg-danger/20 text-danger'
                 }`}>
-                  {results.risk_level} RISK
+                  {results.risk_level} РИСК
                 </div>
               )}
             </div>

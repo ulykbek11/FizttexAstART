@@ -1,4 +1,5 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 import json
@@ -12,6 +13,14 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from main import UltimateSecurityAnalyzer
 
 app = FastAPI()
+
+@app.middleware("http")
+async def block_vercel_domains(request: Request, call_next):
+    host = request.headers.get("host", "")
+    if "vercel.app" in host:
+        return JSONResponse(status_code=403, content={"detail": "Access denied for Vercel domains"})
+    response = await call_next(request)
+    return response
 
 app.add_middleware(
     CORSMiddleware,

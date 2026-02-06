@@ -204,7 +204,7 @@ class UltimateSecurityAnalyzer:
             await self.log(f"[-] DNS error: {e}", "ERROR")
 
     async def bruteforce_subdomains(self):
-        await self.log(f"\n[*] Bruteforcing subdomains...", "WARNING")
+        await self.log(f"\n[*] Перебор поддоменов...", "WARNING")
         wordlist = [
             'www', 'mail', 'ftp', 'admin', 'test', 'dev', 'staging', 'api',
             'secure', 'blog', 'shop', 'portal', 'webmail', 'ns1', 'ns2',
@@ -241,9 +241,9 @@ class UltimateSecurityAnalyzer:
 
         if found_subs:
             self.results['subdomains'] = found_subs
-            await self.log(f"[+] Found {len(found_subs)} subdomains", "SUCCESS")
+            await self.log(f"[+] Найдено {len(found_subs)} поддоменов", "SUCCESS")
         else:
-            await self.log(f"[-] No subdomains found", "ERROR")
+            await self.log(f"[-] Поддомены не найдены", "ERROR")
 
     async def check_http_https(self):
         await self.print_banner("АНАЛИЗ HTTP/HTTPS")
@@ -290,38 +290,38 @@ class UltimateSecurityAnalyzer:
             await self.check_open_redirect(url)
 
     async def check_headers_security(self, headers):
-        await self.log(f"\n[*] Security Headers Check:", "WARNING")
+        await self.log(f"\n[*] Проверка заголовков безопасности:", "WARNING")
 
         security_checks = {
             'Strict-Transport-Security': {
                 'check': lambda h: 'Strict-Transport-Security' in h,
-                'message': 'HSTS not configured',
+                'message': 'HSTS не настроен',
                 'penalty': 15
             },
             'Content-Security-Policy': {
                 'check': lambda h: 'Content-Security-Policy' in h,
-                'message': 'CSP not configured',
+                'message': 'CSP не настроен',
                 'penalty': 10
             },
             'X-Frame-Options': {
                 'check': lambda h: 'X-Frame-Options' in h,
-                'message': 'Clickjacking protection missing',
+                'message': 'Отсутствует защита от кликджекинга',
                 'penalty': 10
             },
             'X-Content-Type-Options': {
                 'check': lambda h: 'X-Content-Type-Options' in h,
-                'message': 'MIME-sniffing not blocked',
+                'message': 'MIME-sniffing не заблокирован',
                 'penalty': 5
             },
             'X-XSS-Protection': {
                 'check': lambda h: 'X-XSS-Protection' in h and '1; mode=block' in h['X-XSS-Protection'],
-                'message': 'XSS protection weak or missing',
+                'message': 'Защита от XSS слабая или отсутствует',
                 'penalty': 10
             },
             'Referrer-Policy': {
                 'check': lambda h: 'Referrer-Policy' in h and h['Referrer-Policy'] in ['no-referrer', 'strict-origin',
                                                                                        'strict-origin-when-cross-origin'],
-                'message': 'Referrer policy weak or missing',
+                'message': 'Политика Referrer слабая или отсутствует',
                 'penalty': 5
             }
         }
@@ -417,7 +417,7 @@ class UltimateSecurityAnalyzer:
                 try:
                     response = await asyncio.to_thread(self.session.get, url, timeout=5, verify=False)
                     if response.status_code == 200:
-                        await self.log(f"[-] {url} is accessible", "ERROR")
+                        await self.log(f"[-] {url} доступен", "ERROR")
                         self.results['vulnerabilities'].append(f"WordPress {url.split('/')[-1]} accessible")
                         self.results['security_score'] -= 10
                 except:
@@ -470,7 +470,7 @@ class UltimateSecurityAnalyzer:
 
                         for pattern in error_patterns:
                             if re.search(pattern, response.text, re.IGNORECASE):
-                                await self.log(f"[!] SQL Injection possible in parameter: {param_name}", "ERROR")
+                                await self.log(f"[!] Возможна SQL инъекция в параметре: {param_name}", "ERROR")
                                 vulnerable = True
                                 self.results['critical_vulns'].append(f"SQLi in {param_name}")
                                 self.results['security_score'] -= 30
@@ -479,7 +479,7 @@ class UltimateSecurityAnalyzer:
                         pass
 
         if not vulnerable:
-            await self.log(f"[+] No obvious SQL Injection vulnerabilities found", "SUCCESS")
+            await self.log(f"[+] Явных уязвимостей SQL Injection не найдено", "SUCCESS")
 
     async def advanced_lfi_scan(self, url):
         await self.log(f"[*] Advanced LFI/RFI Scanning...", "WARNING")
@@ -491,7 +491,7 @@ class UltimateSecurityAnalyzer:
             try:
                 response = await asyncio.to_thread(self.session.get, test_url, timeout=5, verify=False)
                 if 'root:' in response.text or '[fonts]' in response.text:
-                    await self.log(f"[!] LFI possible: {payload}", "ERROR")
+                    await self.log(f"[!] Возможен LFI: {payload}", "ERROR")
                     vulnerable = True
                     self.results['critical_vulns'].append("Local File Inclusion")
                     self.results['security_score'] -= 25
@@ -502,7 +502,7 @@ class UltimateSecurityAnalyzer:
             await self.log(f"[+] No obvious LFI/RFI vulnerabilities found", "SUCCESS")
 
     async def advanced_ssrf_scan(self, url):
-        await self.log(f"[*] Advanced SSRF Scanning...", "WARNING")
+        await self.log(f"[*] Расширенное сканирование SSRF...", "WARNING")
 
         vulnerable = False
 
@@ -511,7 +511,7 @@ class UltimateSecurityAnalyzer:
             try:
                 response = await asyncio.to_thread(self.session.get, test_url, timeout=3, verify=False)
                 if 'root:' in response.text or 'aws' in response.text.lower():
-                    await self.log(f"[!] SSRF possible: {payload}", "ERROR")
+                    await self.log(f"[!] Возможен SSRF: {payload}", "ERROR")
                     vulnerable = True
                     self.results['critical_vulns'].append("Server-Side Request Forgery")
                     self.results['security_score'] -= 20
@@ -522,7 +522,7 @@ class UltimateSecurityAnalyzer:
             await self.log(f"[+] No obvious SSRF vulnerabilities found", "SUCCESS")
 
     async def command_injection_scan(self, url):
-        await self.log(f"[*] Command Injection Scanning...", "WARNING")
+        await self.log(f"[*] Сканирование на инъекции команд...", "WARNING")
 
         vulnerable = False
 
@@ -542,7 +542,7 @@ class UltimateSecurityAnalyzer:
                             self.results['security_score'] -= 25
 
                         if 'uid=' in response.text or 'gid=' in response.text:
-                            await self.log(f"[!] Command injection possible in: {param_name}", "ERROR")
+                            await self.log(f"[!] Возможна инъекция команд в: {param_name}", "ERROR")
                             vulnerable = True
                             self.results['critical_vulns'].append(f"Command injection in {param_name}")
                             self.results['security_score'] -= 25
@@ -551,10 +551,10 @@ class UltimateSecurityAnalyzer:
                         pass
 
         if not vulnerable:
-            await self.log(f"[+] No obvious command injection vulnerabilities found", "SUCCESS")
+            await self.log(f"[+] Явных уязвимостей инъекции команд не найдено", "SUCCESS")
 
     async def check_crlf_injection(self, url):
-        await self.log(f"[*] CRLF Injection Scanning...", "WARNING")
+        await self.log(f"[*] Сканирование CRLF инъекций...", "WARNING")
 
         crlf_payloads = [
             '%0d%0aSet-Cookie:injected=true',
@@ -567,17 +567,17 @@ class UltimateSecurityAnalyzer:
                 response = await asyncio.to_thread(self.session.get, test_url, timeout=5, verify=False, allow_redirects=False)
                 headers = str(response.headers).lower()
                 if 'injected' in headers:
-                    await self.log(f"[!] CRLF Injection possible", "ERROR")
+                    await self.log(f"[!] Возможна CRLF инъекция", "ERROR")
                     self.results['vulnerabilities'].append("CRLF Injection")
                     self.results['security_score'] -= 15
                     return
             except:
                 pass
 
-        await self.log(f"[+] No CRLF injection vulnerabilities found", "SUCCESS")
+        await self.log(f"[+] Явных уязвимостей CRLF инъекции не найдено", "SUCCESS")
 
     async def check_open_redirect(self, url):
-        await self.log(f"[*] Open Redirect Scanning...", "WARNING")
+        await self.log(f"[*] Сканирование открытых редиректов...", "WARNING")
 
         redirect_payloads = [
             'https://evil.com',
@@ -596,7 +596,7 @@ class UltimateSecurityAnalyzer:
             except:
                 pass
 
-        await self.log(f"[+] No open redirect vulnerabilities found", "SUCCESS")
+        await self.log(f"[+] Явных уязвимостей открытого редиректа не найдено", "SUCCESS")
 
     async def check_ssl_certificate(self):
         await self.print_banner("АНАЛИЗ SSL/TLS")
@@ -612,32 +612,32 @@ class UltimateSecurityAnalyzer:
                 ssl_obj = writer.get_extra_info('ssl_object')
                 cert = ssl_obj.getpeercert()
 
-                await self.log(f"[+] Certificate found", "SUCCESS")
+                await self.log(f"[+] Сертификат найден", "SUCCESS")
 
                 not_after = cert['notAfter']
                 not_before = cert['notBefore']
                 expiry_date = datetime.strptime(not_after, '%b %d %H:%M:%S %Y %Z')
                 days_left = (expiry_date - datetime.now()).days
 
-                await self.log(f"[+] Valid from: {not_before}", "SUCCESS")
-                await self.log(f"[+] Valid until: {not_after}", "SUCCESS")
-                await self.log(f"[+] Days remaining: {days_left}", "SUCCESS")
+                await self.log(f"[+] Действителен с: {not_before}", "SUCCESS")
+                await self.log(f"[+] Действителен до: {not_after}", "SUCCESS")
+                await self.log(f"[+] Дней осталось: {days_left}", "SUCCESS")
 
                 if days_left < 30:
-                    await self.log(f"[!] WARNING: Certificate expires soon!", "WARNING")
+                    await self.log(f"[!] ПРЕДУПРЕЖДЕНИЕ: Сертификат скоро истекает!", "WARNING")
                     self.results['vulnerabilities'].append("SSL certificate expires soon")
                     self.results['security_score'] -= 20
 
                 if days_left < 0:
-                    await self.log(f"[!] CRITICAL: Certificate expired!", "ERROR")
+                    await self.log(f"[!] КРИТИЧЕСКИ: Сертификат истек!", "ERROR")
                     self.results['critical_vulns'].append("SSL certificate expired")
                     self.results['security_score'] -= 40
 
                 cipher = ssl_obj.cipher()
-                await self.log(f"[+] Cipher: {cipher[0]} {cipher[1]} {cipher[2]}", "INFO")
+                await self.log(f"[+] Шифр: {cipher[0]} {cipher[1]} {cipher[2]}", "INFO")
 
                 if 'RC4' in cipher[0] or 'DES' in cipher[0] or '3DES' in cipher[0]:
-                    await self.log(f"[!] Weak cipher detected: {cipher[0]}", "ERROR")
+                    await self.log(f"[!] Обнаружен слабый шифр: {cipher[0]}", "ERROR")
                     self.results['vulnerabilities'].append(f"Weak cipher: {cipher[0]}")
                     self.results['security_score'] -= 15
 
@@ -654,11 +654,11 @@ class UltimateSecurityAnalyzer:
 
             except Exception as e:
                 # Fallback to sync socket if asyncio fails or timeout
-                 await self.log(f"[-] Async SSL check failed, trying sync...", "WARNING")
+                 await self.log(f"[-] Ошибка асинхронной SSL проверки, пробуем синхронно...", "WARNING")
                  raise e
 
         except Exception as e:
-            await self.log(f"[-] SSL check failed: {e}", "ERROR")
+            await self.log(f"[-] Ошибка SSL: {e}", "ERROR")
             self.results['vulnerabilities'].append(f"SSL check failed: {e}")
             self.results['security_score'] -= 30
 
@@ -666,15 +666,15 @@ class UltimateSecurityAnalyzer:
         await self.print_banner("ПОЛНОЕ СКАНИРОВАНИЕ ПОРТОВ")
 
         if nmap is None:
-            await self.log(f"[-] python-nmap not installed. Skipping port scan.", "ERROR")
-            await self.log(f"[*] Install with: pip install python-nmap", "WARNING")
+            await self.log(f"[-] python-nmap не установлен. Пропуск сканирования портов.", "ERROR")
+            await self.log(f"[*] Установите с помощью: pip install python-nmap", "WARNING")
             await self.quick_port_scan()
             return
 
         try:
             nm = nmap.PortScanner()
 
-            await self.log(f"[*] Starting port scan...", "WARNING")
+            await self.log(f"[*] Запуск сканирования портов...", "WARNING")
 
             # Run nmap scan in thread pool
             await asyncio.to_thread(nm.scan, self.domain, arguments='-p 1-1000 -T4 -sV')
@@ -682,21 +682,21 @@ class UltimateSecurityAnalyzer:
             if self.domain in nm.all_hosts():
                 host = nm[self.domain]
 
-                await self.log(f"[+] Host status: {host.state()}", "SUCCESS")
+                await self.log(f"[+] Статус хоста: {host.state()}", "SUCCESS")
 
                 protocols = ['tcp', 'udp']
                 for proto in protocols:
                     if proto in host:
-                        await self.log(f"\n[*] {proto.upper()} PORTS:", "INFO")
+                        await self.log(f"\n[*] {proto.upper()} ПОРТЫ:", "INFO")
                         for port in sorted(host[proto].keys()):
                             port_info = host[proto][port]
                             state = port_info['state']
 
                             if state == 'open':
-                                status = f"[+] Port {port}: {port_info['name']} - OPEN"
+                                status = f"[+] Порт {port}: {port_info['name']} - ОТКРЫТ"
                                 await self.log(status, "SUCCESS")
 
-                                service_info = f"Service: {port_info.get('product', '')} {port_info.get('version', '')}"
+                                service_info = f"Сервис: {port_info.get('product', '')} {port_info.get('version', '')}"
                                 if service_info.strip():
                                     await self.log(f"    {service_info}", "INFO")
 
@@ -716,14 +716,14 @@ class UltimateSecurityAnalyzer:
                                 })
 
             else:
-                await self.log(f"[-] Host not found or unreachable", "ERROR")
+                await self.log(f"[-] Хост не найден или недоступен", "ERROR")
 
         except Exception as e:
-            await self.log(f"[-] Port scan error: {e}", "ERROR")
+            await self.log(f"[-] Ошибка сканирования портов: {e}", "ERROR")
             await self.quick_port_scan()
 
     async def quick_port_scan(self):
-        await self.log(f"[*] Quick port scan...", "WARNING")
+        await self.log(f"[*] Быстрое сканирование портов...", "WARNING")
 
         top_ports = [
             21, 22, 23, 25, 53, 80, 110, 111, 135, 139, 143, 443, 445,
@@ -759,7 +759,7 @@ class UltimateSecurityAnalyzer:
         
         for port, service, is_open in results:
             if is_open:
-                await self.log(f"[+] Port {port} ({service}) - OPEN", "SUCCESS")
+                await self.log(f"[+] Порт {port} ({service}) - ОТКРЫТ", "SUCCESS")
                 open_ports.append((port, service))
 
                 self.results['ports'].append({
@@ -769,18 +769,18 @@ class UltimateSecurityAnalyzer:
                     'service': service
                 })
             elif is_open is False:
-                await self.log(f"[-] Port {port} - CLOSED", "ERROR")
+                await self.log(f"[-] Порт {port} - ЗАКРЫТ", "ERROR")
             else:
-                await self.log(f"[-] Port {port} - ERROR", "ERROR")
+                await self.log(f"[-] Порт {port} - ОШИБКА", "ERROR")
 
         return open_ports
 
     async def check_whois(self):
-        await self.print_banner("WHOIS INFORMATION")
+        await self.print_banner("ИНФОРМАЦИЯ WHOIS")
 
         if whois is None:
-            await self.log(f"[-] python-whois not installed. Skipping WHOIS.", "ERROR")
-            await self.log(f"[*] Install with: pip install python-whois", "WARNING")
+            await self.log(f"[-] python-whois не установлен. Пропуск WHOIS.", "ERROR")
+            await self.log(f"[*] Установите с помощью: pip install python-whois", "WARNING")
             return
 
         try:
@@ -788,37 +788,37 @@ class UltimateSecurityAnalyzer:
             w = await asyncio.to_thread(whois.whois, self.domain)
 
             if w.domain_name:
-                await self.log(f"[+] Domain: {w.domain_name}", "SUCCESS")
+                await self.log(f"[+] Домен: {w.domain_name}", "SUCCESS")
 
             if w.registrar:
-                await self.log(f"[+] Registrar: {w.registrar}", "SUCCESS")
+                await self.log(f"[+] Регистратор: {w.registrar}", "SUCCESS")
 
             if w.creation_date:
-                await self.log(f"[+] Created: {w.creation_date}", "SUCCESS")
+                await self.log(f"[+] Создан: {w.creation_date}", "SUCCESS")
 
             if w.expiration_date:
                 expiry_date = w.expiration_date
                 if isinstance(expiry_date, list):
                     expiry_date = expiry_date[0]
 
-                await self.log(f"[+] Expires: {expiry_date}", "SUCCESS")
+                await self.log(f"[+] Истекает: {expiry_date}", "SUCCESS")
 
                 if isinstance(expiry_date, datetime):
                     days_left = (expiry_date - datetime.now()).days
-                    await self.log(f"[+] Days until expiry: {days_left}", "SUCCESS")
+                    await self.log(f"[+] Дней до истечения: {days_left}", "SUCCESS")
 
                     if days_left < 30:
-                        await self.log(f"[!] Domain expires soon!", "ERROR")
+                        await self.log(f"[!] Домен скоро истекает!", "ERROR")
                         self.results['vulnerabilities'].append("Domain expires soon")
                         self.results['security_score'] -= 10
 
             if w.name_servers:
-                await self.log(f"[+] Name servers:", "SUCCESS")
+                await self.log(f"[+] Name-серверы:", "SUCCESS")
                 for ns in w.name_servers[:3]:
                     await self.log(f"    {ns}", "INFO")
 
         except Exception as e:
-            await self.log(f"[-] WHOIS error: {e}", "ERROR")
+            await self.log(f"[-] Ошибка WHOIS: {e}", "ERROR")
 
     async def directory_bruteforce(self):
         await self.print_banner("ПЕРЕБОР ДИРЕКТОРИЙ")
@@ -869,18 +869,18 @@ class UltimateSecurityAnalyzer:
             if res:
                 url, status, code = res
                 if status == "FOUND":
-                    await self.log(f"[+] {url} - FOUND ({code})", "SUCCESS")
+                    await self.log(f"[+] {url} - НАЙДЕНО ({code})", "SUCCESS")
                     found_dirs.append(url)
                 elif status == "FORBIDDEN":
-                    await self.log(f"[!] {url} - FORBIDDEN ({code})", "WARNING")
+                    await self.log(f"[!] {url} - ЗАПРЕЩЕНО ({code})", "WARNING")
                 elif status == "REDIRECT":
-                    await self.log(f"[→] {url} - REDIRECT ({code})", "INFO")
+                    await self.log(f"[→] {url} - РЕДИРЕКТ ({code})", "INFO")
 
         if found_dirs:
             self.results['directories'] = found_dirs
-            await self.log(f"[+] Found {len(found_dirs)} directories", "SUCCESS")
+            await self.log(f"[+] Найдено {len(found_dirs)} директорий", "SUCCESS")
         else:
-            await self.log(f"[-] No directories found", "ERROR")
+            await self.log(f"[-] Директории не найдены", "ERROR")
 
     async def check_vulnerabilities(self):
         await self.print_banner("СКАНИРОВАНИЕ УЯЗВИМОСТЕЙ")
@@ -895,7 +895,7 @@ class UltimateSecurityAnalyzer:
         await self.check_cors_misconfiguration()
 
     async def check_http_methods(self):
-        await self.log(f"[*] Checking HTTP methods...", "WARNING")
+        await self.log(f"[*] Проверка HTTP методов...", "WARNING")
 
         methods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'TRACE']
         dangerous_methods = ['PUT', 'DELETE', 'TRACE']
@@ -906,20 +906,20 @@ class UltimateSecurityAnalyzer:
                 await self.log(f"[?] {method}: {response.status_code}", "INFO")
 
                 if method in dangerous_methods and response.status_code in [200, 201, 204]:
-                    await self.log(f"[!] Dangerous method {method} allowed", "ERROR")
+                    await self.log(f"[!] Опасный метод {method} разрешен", "ERROR")
                     self.results['vulnerabilities'].append(f"Dangerous HTTP method {method} allowed")
                     self.results['security_score'] -= 10
 
                 if method == 'TRACE' and response.status_code == 200:
-                    await self.log(f"[!] TRACE method enabled - XST possible", "ERROR")
+                    await self.log(f"[!] Метод TRACE включен - возможен XST", "ERROR")
                     self.results['critical_vulns'].append("TRACE method enabled (XST)")
                     self.results['security_score'] -= 15
 
             except:
-                await self.log(f"[-] {method}: Failed", "ERROR")
+                await self.log(f"[-] {method}: Ошибка", "ERROR")
 
     async def check_server_status(self):
-        await self.log(f"[*] Checking server status pages...", "WARNING")
+        await self.log(f"[*] Проверка страниц статуса сервера...", "WARNING")
 
         status_urls = [
             f"http://{self.domain}/server-status",
@@ -932,14 +932,14 @@ class UltimateSecurityAnalyzer:
                 response = await asyncio.to_thread(self.session.get, url, timeout=3, verify=False)
                 if response.status_code == 200 and (
                         'server-status' in response.text.lower() or 'apache' in response.text.lower()):
-                    await self.log(f"[!] Server status page exposed: {url}", "ERROR")
+                    await self.log(f"[!] Страница статуса сервера доступна: {url}", "ERROR")
                     self.results['vulnerabilities'].append("Server status page exposed")
                     self.results['security_score'] -= 10
             except:
                 pass
 
     async def check_config_files(self):
-        await self.log(f"[*] Checking configuration files...", "WARNING")
+        await self.log(f"[*] Проверка конфигурационных файлов...", "WARNING")
 
         config_files = [
             '.env', '.env.example', '.env.local',
@@ -953,21 +953,21 @@ class UltimateSecurityAnalyzer:
             try:
                 response = await asyncio.to_thread(self.session.get, url, timeout=3, verify=False)
                 if response.status_code == 200:
-                    await self.log(f"[!] Configuration file exposed: {url}", "ERROR")
+                    await self.log(f"[!] Конфигурационный файл доступен: {url}", "ERROR")
                     self.results['vulnerabilities'].append(f"Configuration file exposed: {config_file}")
                     self.results['security_score'] -= 10
 
                     if '.env' in config_file or 'config.php' in config_file:
                         content = response.text[:500]
                         if 'password' in content.lower() or 'secret' in content.lower():
-                            await self.log(f"[!] CRITICAL: Secrets in config file!", "ERROR")
+                            await self.log(f"[!] КРИТИЧЕСКИ: Секреты в конфиг файле!", "ERROR")
                             self.results['critical_vulns'].append(f"Secrets in config file: {config_file}")
                             self.results['security_score'] -= 25
             except:
                 pass
 
     async def check_backup_files(self):
-        await self.log(f"[*] Checking backup files...", "WARNING")
+        await self.log(f"[*] Проверка файлов резервных копий...", "WARNING")
 
         backup_files = [
             'backup.zip', 'backup.tar', 'backup.tar.gz',
@@ -980,14 +980,14 @@ class UltimateSecurityAnalyzer:
             try:
                 response = await asyncio.to_thread(self.session.head, url, timeout=3, verify=False)
                 if response.status_code == 200:
-                    await self.log(f"[!] Backup file exposed: {url}", "ERROR")
+                    await self.log(f"[!] Бэкап файл доступен: {url}", "ERROR")
                     self.results['vulnerabilities'].append(f"Backup file exposed: {backup_file}")
                     self.results['security_score'] -= 15
             except:
                 pass
 
     async def check_source_code_leakage(self):
-        await self.log(f"[*] Checking source code leakage...", "WARNING")
+        await self.log(f"[*] Проверка утечки исходного кода...", "WARNING")
 
         source_files = [
             '.git/HEAD', '.git/config',
@@ -1001,19 +1001,19 @@ class UltimateSecurityAnalyzer:
             try:
                 response = await asyncio.to_thread(self.session.get, url, timeout=3, verify=False)
                 if response.status_code == 200:
-                    await self.log(f"[!] Source code file exposed: {url}", "ERROR")
+                    await self.log(f"[!] Исходный код доступен: {url}", "ERROR")
                     self.results['vulnerabilities'].append(f"Source code exposed: {source_file}")
                     self.results['security_score'] -= 10
 
                     if '.git' in source_file:
-                        await self.log(f"[!] CRITICAL: Git repository exposed!", "ERROR")
+                        await self.log(f"[!] КРИТИЧЕСКИ: Git репозиторий доступен!", "ERROR")
                         self.results['critical_vulns'].append("Git repository exposed")
                         self.results['security_score'] -= 20
             except:
                 pass
 
     async def check_cors_misconfiguration(self):
-        await self.log(f"[*] Checking CORS configuration...", "WARNING")
+        await self.log(f"[*] Проверка конфигурации CORS...", "WARNING")
 
         try:
             headers = {'Origin': 'https://evil.com'}
@@ -1021,15 +1021,15 @@ class UltimateSecurityAnalyzer:
 
             if 'Access-Control-Allow-Origin' in response.headers:
                 cors_header = response.headers['Access-Control-Allow-Origin']
-                await self.log(f"[?] CORS Header: {cors_header}", "INFO")
+                await self.log(f"[?] Заголовок CORS: {cors_header}", "INFO")
 
             if cors_header == '*':
-                await self.log(f"[!] CORS misconfigured: Wildcard origin allowed", "ERROR")
+                await self.log(f"[!] CORS неправильно настроен: Wildcard origin", "ERROR")
                 self.results['vulnerabilities'].append("CORS wildcard origin")
                 self.results['security_score'] -= 10
             elif 'Access-Control-Allow-Credentials' in response.headers and response.headers[
                 'Access-Control-Allow-Credentials'].lower() == 'true':
-                await self.log(f"[!] CORS with credentials allowed", "ERROR")
+                await self.log(f"[!] CORS с credentials разрешен", "ERROR")
                 self.results['vulnerabilities'].append("CORS with credentials")
                 self.results['security_score'] -= 15
         except:
@@ -1040,10 +1040,10 @@ class UltimateSecurityAnalyzer:
 
         self.results['security_score'] = max(0, self.results['security_score'])
 
-        risk_level = "CRITICAL" if self.results['security_score'] < 30 else \
-            "HIGH" if self.results['security_score'] < 50 else \
-                "MEDIUM" if self.results['security_score'] < 70 else \
-                    "LOW" if self.results['security_score'] < 90 else "SECURE"
+        risk_level = "КРИТИЧЕСКИЙ" if self.results['security_score'] < 30 else \
+            "ВЫСОКИЙ" if self.results['security_score'] < 50 else \
+                "СРЕДНИЙ" if self.results['security_score'] < 70 else \
+                    "НИЗКИЙ" if self.results['security_score'] < 90 else "БЕЗОПАСНО"
 
         self.results['risk_level'] = risk_level
 
@@ -1052,45 +1052,45 @@ class UltimateSecurityAnalyzer:
                 json.dump(self.results, f, indent=2, ensure_ascii=False)
 
         await asyncio.to_thread(write_json)
-        await self.log(f"\n[+] Results saved to {filename}", "SUCCESS")
+        await self.log(f"\n[+] Результаты сохранены в {filename}", "SUCCESS")
 
         txt_filename = filename.replace('.json', '.txt')
         
         def write_txt():
             with open(txt_filename, 'w', encoding='utf-8') as f:
-                f.write(f"SECURITY SCAN REPORT\n")
-                f.write(f"Target: {self.domain}\n")
-                f.write(f"Scan time: {self.results['scan_time']}\n")
-                f.write(f"Security Score: {self.results['security_score']}/100\n")
-                f.write(f"Risk Level: {risk_level}\n")
+                f.write(f"ОТЧЕТ ПО БЕЗОПАСНОСТИ\n")
+                f.write(f"Цель: {self.domain}\n")
+                f.write(f"Время сканирования: {self.results['scan_time']}\n")
+                f.write(f"Оценка безопасности: {self.results['security_score']}/100\n")
+                f.write(f"Уровень риска: {risk_level}\n")
                 f.write("=" * 80 + "\n\n")
 
                 if self.results['critical_vulns']:
-                    f.write("CRITICAL VULNERABILITIES:\n")
+                    f.write("КРИТИЧЕСКИЕ УЯЗВИМОСТИ:\n")
                     for vuln in self.results['critical_vulns']:
-                        f.write(f"  [CRITICAL] {vuln}\n")
+                        f.write(f"  [КРИТИЧЕСКИ] {vuln}\n")
                     f.write("\n")
 
                 if self.results['vulnerabilities']:
-                    f.write("VULNERABILITIES:\n")
+                    f.write("УЯЗВИМОСТИ:\n")
                     for vuln in self.results['vulnerabilities']:
                         f.write(f"  [-] {vuln}\n")
                     f.write("\n")
 
                 if self.results['ports']:
                     open_ports = [p for p in self.results['ports'] if p.get('state') == 'open']
-                    f.write(f"OPEN PORTS ({len(open_ports)}):\n")
+                    f.write(f"ОТКРЫТЫЕ ПОРТЫ ({len(open_ports)}):\n")
                     for port in open_ports:
                         f.write(f"  [+] {port.get('port')}/{port.get('protocol', 'tcp')}: {port.get('service', '')}\n")
                     f.write("\n")
 
                 if self.results['subdomains']:
-                    f.write(f"SUBDOMAINS ({len(self.results['subdomains'])}):\n")
+                    f.write(f"ПОДДОМЕНЫ ({len(self.results['subdomains'])}):\n")
                     for sub in self.results['subdomains'][:10]:
                         f.write(f"  [+] {sub}\n")
 
         await asyncio.to_thread(write_txt)
-        await self.log(f"[+] Text report saved to {txt_filename}", "SUCCESS")
+        await self.log(f"[+] Текстовый отчет сохранен в {txt_filename}", "SUCCESS")
 
     async def run_full_scan(self):
         banner = f"""
@@ -1125,25 +1125,25 @@ class UltimateSecurityAnalyzer:
 
             await self.log(f"[+] Оценка безопасности: {self.results['security_score']}/100", "SUCCESS")
 
-            risk_level = "CRITICAL" if self.results['security_score'] < 30 else \
-                "HIGH" if self.results['security_score'] < 50 else \
-                    "MEDIUM" if self.results['security_score'] < 70 else \
-                        "LOW" if self.results['security_score'] < 90 else "SECURE"
+            risk_level = "КРИТИЧЕСКИЙ" if self.results['security_score'] < 30 else \
+                "ВЫСОКИЙ" if self.results['security_score'] < 50 else \
+                    "СРЕДНИЙ" if self.results['security_score'] < 70 else \
+                        "НИЗКИЙ" if self.results['security_score'] < 90 else "БЕЗОПАСНО"
             
-            risk_color_level = "ERROR" if risk_level == "CRITICAL" else \
-                               "WARNING" if risk_level == "HIGH" else \
-                               "WARNING" if risk_level == "MEDIUM" else \
-                               "SUCCESS" if risk_level == "LOW" else "SUCCESS"
+            risk_color_level = "ERROR" if risk_level == "КРИТИЧЕСКИЙ" else \
+                               "WARNING" if risk_level == "ВЫСОКИЙ" else \
+                               "WARNING" if risk_level == "СРЕДНИЙ" else \
+                               "SUCCESS" if risk_level == "НИЗКИЙ" else "SUCCESS"
 
-            await self.log(f"[+] Risk Level: {risk_level}", risk_color_level)
+            await self.log(f"[+] Уровень риска: {risk_level}", risk_color_level)
 
             if self.results['critical_vulns']:
-                await self.log(f"\n[!] CRITICAL VULNERABILITIES FOUND ({len(self.results['critical_vulns'])}):", "ERROR")
+                await self.log(f"\n[!] НАЙДЕНЫ КРИТИЧЕСКИЕ УЯЗВИМОСТИ ({len(self.results['critical_vulns'])}):", "ERROR")
                 for vuln in self.results['critical_vulns']:
                     await self.log(f"    ● {vuln}", "ERROR")
 
             if self.results['vulnerabilities']:
-                await self.log(f"\n[!] VULNERABILITIES FOUND ({len(self.results['vulnerabilities'])}):", "WARNING")
+                await self.log(f"\n[!] НАЙДЕНЫ УЯЗВИМОСТИ ({len(self.results['vulnerabilities'])}):", "WARNING")
                 for vuln in self.results['vulnerabilities'][:10]:
                     await self.log(f"    ● {vuln}", "WARNING")
 
