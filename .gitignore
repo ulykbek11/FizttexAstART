@@ -51,3 +51,6 @@ ENV/
 # Logs
 logs/
 *.log
+
+# Scan Results
+backend/scan_*
