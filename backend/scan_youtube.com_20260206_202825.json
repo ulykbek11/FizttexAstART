@@ -1,0 +1,95 @@
+{
+  "domain": "youtube.com",
+  "scan_time": "2026-02-06T20:27:02.239241",
+  "vulnerabilities": [
+    "CRLF Injection",
+    "Open Redirect",
+    "CRLF Injection",
+    "Open Redirect",
+    "CRLF Injection",
+    "Open Redirect",
+    "Open Redirect",
+    "Configuration file exposed: robots.txt",
+    "Source code exposed: LICENSE"
+  ],
+  "critical_vulns": [
+    "Server-Side Request Forgery",
+    "Server-Side Request Forgery",
+    "Server-Side Request Forgery",
+    "Server-Side Request Forgery",
+    "Server-Side Request Forgery",
+    "Server-Side Request Forgery",
+    "Server-Side Request Forgery",
+    "Server-Side Request Forgery",
+    "Server-Side Request Forgery",
+    "Server-Side Request Forgery"
+  ],
+  "ports": [
+    {
+      "port": 80,
+      "protocol": "tcp",
+      "state": "open",
+      "service": "http"
+    },
+    {
+      "port": 443,
+      "protocol": "tcp",
+      "state": "open",
+      "service": "https"
+    }
+  ],
+  "services": [],
+  "subdomains": [
+    "www.youtube.com",
+    "admin.youtube.com",
+    "app.youtube.com",
+    "help.youtube.com",
+    "news.youtube.com",
+    "music.youtube.com",
+    "admin.youtube.com"
+  ],
+  "directories": [],
+  "endpoints": [
+    "https://www.youtube.com/t/terms",
+    "https://www.youtube.com/t/privacy",
+    "https://www.youtube.com/new",
+    "https://www.youtube.com/manifest.webmanifest",
+    "https://www.youtube.com/t/contact_us/",
+    "https://www.youtube.com/ios-app://544007664/vnd.youtube/www.youtube.com/",
+    "https://www.youtube.com/",
+    "https://www.youtube.com/android-app://com.google.android.youtube/http/www.youtube.com/"
+  ],
+  "headers_issues": [
+    "XSS protection weak or missing",
+    "Referrer policy weak or missing",
+    "XSS protection weak or missing",
+    "Referrer policy weak or missing",
+    "XSS protection weak or missing",
+    "Referrer policy weak or missing",
+    "XSS protection weak or missing",
+    "Referrer policy weak or missing"
+  ],
+  "cms_detected": null,
+  "technologies": [
+    "bootstrap",
+    "asp",
+    "vue",
+    "php",
+    "iis",
+    "bootstrap",
+    "asp",
+    "vue",
+    "java",
+    "iis",
+    "iis",
+    "bootstrap",
+    "asp",
+    "php",
+    "asp",
+    "bootstrap",
+    "php",
+    "vue"
+  ],
+  "security_score": 0,
+  "risk_level": "CRITICAL"
+}
