@@ -54,7 +54,7 @@ function App() {
 
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
-      setLogs(prev => [...prev, { message: 'Connection error', level: 'ERROR' }]);
+      setLogs(prev => [...prev, { message: 'Ошибка подключения', level: 'ERROR' }]);
       setIsScanning(false);
     };
   };
@@ -95,7 +95,7 @@ function App() {
                 : 'bg-gradient-to-r from-primary to-cyan text-white hover:shadow-lg hover:shadow-cyan/20'
             }`}
           >
-            {isScanning ? 'Scanning...' : 'Start Scan'}
+            {isScanning ? 'Сканирование...' : 'Начать сканирование'}
           </button>
         </div>
 
@@ -106,12 +106,12 @@ function App() {
           <div className="lg:col-span-2 bg-darker border border-gray-800 rounded-xl p-6 h-[600px] flex flex-col">
             <div className="flex items-center gap-2 mb-4 text-cyan border-b border-gray-800 pb-4">
               <Terminal size={20} />
-              <h2 className="font-mono text-lg">Live Execution Logs</h2>
+              <h2 className="font-mono text-lg">Журнал выполнения</h2>
             </div>
             <div className="flex-1 overflow-y-auto font-mono text-sm space-y-2 pr-2">
               {logs.length === 0 && !isScanning && (
                 <div className="text-gray-600 text-center mt-20">
-                  Ready to scan. Enter a target domain to begin.
+                  Готов к сканированию. Введите домен для начала.
                 </div>
               )}
               {logs.map((log, index) => (
@@ -138,7 +138,7 @@ function App() {
               <div className="absolute top-0 right-0 p-4 opacity-10">
                 <Shield size={100} />
               </div>
-              <h2 className="text-gray-400 mb-2">Security Score</h2>
+              <h2 className="text-gray-400 mb-2">Оценка безопасности</h2>
               <div className="flex items-end gap-2">
                 <span className={`text-6xl font-bold ${
                   !results ? 'text-gray-600' :
@@ -173,7 +173,7 @@ function App() {
               </div>
               <div className="bg-darker border border-gray-800 rounded-xl p-4">
                 <div className="text-gray-400 text-sm mb-1 flex items-center gap-2">
-                  <Activity size={14} /> Issues
+                  <Activity size={14} /> Проблемы
                 </div>
                 <div className="text-2xl font-bold text-warning">
                   {results ? results.vulnerabilities.length : '-'}
@@ -181,7 +181,7 @@ function App() {
               </div>
               <div className="bg-darker border border-gray-800 rounded-xl p-4">
                 <div className="text-gray-400 text-sm mb-1 flex items-center gap-2">
-                  <Server size={14} /> Ports
+                  <Server size={14} /> Порты
                 </div>
                 <div className="text-2xl font-bold text-cyan">
                   {results ? results.ports.filter(p => p.state === 'open').length : '-'}
@@ -189,7 +189,7 @@ function App() {
               </div>
               <div className="bg-darker border border-gray-800 rounded-xl p-4">
                 <div className="text-gray-400 text-sm mb-1 flex items-center gap-2">
-                  <Globe size={14} /> Subs
+                  <Globe size={14} /> Поддомены
                 </div>
                 <div className="text-2xl font-bold text-primary">
                   {results ? results.subdomains.length : '-'}

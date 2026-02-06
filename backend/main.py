@@ -183,7 +183,7 @@ class UltimateSecurityAnalyzer:
         await self.log(f"{'=' * 80}", "DEBUG")
 
     async def check_dns(self):
-        await self.print_banner("DNS ANALYSIS")
+        await self.print_banner("АНАЛИЗ DNS")
         try:
             resolver = dns.resolver.Resolver()
             resolver.nameservers = ['8.8.8.8', '1.1.1.1']
@@ -246,7 +246,7 @@ class UltimateSecurityAnalyzer:
             await self.log(f"[-] No subdomains found", "ERROR")
 
     async def check_http_https(self):
-        await self.print_banner("HTTP/HTTPS ANALYSIS")
+        await self.print_banner("АНАЛИЗ HTTP/HTTPS")
 
         targets = [
             f"http://{self.domain}",
@@ -599,7 +599,7 @@ class UltimateSecurityAnalyzer:
         await self.log(f"[+] No open redirect vulnerabilities found", "SUCCESS")
 
     async def check_ssl_certificate(self):
-        await self.print_banner("SSL/TLS ANALYSIS")
+        await self.print_banner("АНАЛИЗ SSL/TLS")
 
         try:
             context = ssl.create_default_context()
@@ -663,7 +663,7 @@ class UltimateSecurityAnalyzer:
             self.results['security_score'] -= 30
 
     async def full_port_scan(self):
-        await self.print_banner("FULL PORT SCAN")
+        await self.print_banner("ПОЛНОЕ СКАНИРОВАНИЕ ПОРТОВ")
 
         if nmap is None:
             await self.log(f"[-] python-nmap not installed. Skipping port scan.", "ERROR")
@@ -821,7 +821,7 @@ class UltimateSecurityAnalyzer:
             await self.log(f"[-] WHOIS error: {e}", "ERROR")
 
     async def directory_bruteforce(self):
-        await self.print_banner("DIRECTORY BRUTEFORCE")
+        await self.print_banner("ПЕРЕБОР ДИРЕКТОРИЙ")
 
         common_dirs = [
             'admin', 'administrator', 'login', 'wp-admin', 'wp-login',
@@ -883,9 +883,9 @@ class UltimateSecurityAnalyzer:
             await self.log(f"[-] No directories found", "ERROR")
 
     async def check_vulnerabilities(self):
-        await self.print_banner("VULNERABILITY SCAN")
+        await self.print_banner("СКАНИРОВАНИЕ УЯЗВИМОСТЕЙ")
 
-        await self.log(f"[*] Checking for common vulnerabilities...", "WARNING")
+        await self.log(f"[*] Проверка на распространенные уязвимости...", "WARNING")
 
         await self.check_http_methods()
         await self.check_server_status()
@@ -1117,13 +1117,13 @@ class UltimateSecurityAnalyzer:
             await self.directory_bruteforce()
             await self.check_vulnerabilities()
 
-            await self.print_banner("SCAN COMPLETE")
+            await self.print_banner("СКАНИРОВАНИЕ ЗАВЕРШЕНО")
 
             await self.log(f"\n{'=' * 80}", "DEBUG")
-            await self.log(f"SUMMARY FOR: {self.domain}", "WARNING")
+            await self.log(f"СВОДКА ДЛЯ: {self.domain}", "WARNING")
             await self.log(f"{'=' * 80}", "DEBUG")
 
-            await self.log(f"[+] Security Score: {self.results['security_score']}/100", "SUCCESS")
+            await self.log(f"[+] Оценка безопасности: {self.results['security_score']}/100", "SUCCESS")
 
             risk_level = "CRITICAL" if self.results['security_score'] < 30 else \
                 "HIGH" if self.results['security_score'] < 50 else \
