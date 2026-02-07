@@ -235,6 +235,8 @@ class UltimateSecurityAnalyzer:
             
             Provide a concise security assessment, highlight the most critical risks, and suggest 3 key remediation steps.
             Respond in Russian language.
+            IMPORTANT: Do not use any markdown formatting like asterisks (**), hashes (#), or bullet points with symbols. 
+            Use only plain text with clear headings and spacing.
             """
             
             await self.log("Requesting AI analysis from Gemini...", "INFO")
@@ -243,7 +245,11 @@ class UltimateSecurityAnalyzer:
             response = await asyncio.to_thread(model.generate_content, prompt)
             
             feedback = response.text
-            self.results['ai_feedback'] = feedback
+            
+            # Clean up any remaining markdown symbols just in case
+            feedback = feedback.replace("**", "").replace("###", "").replace("##", "").replace("#", "").replace("* ", "• ")
+            
+            self.results['ai_feedback'] = feedback.strip()
             await self.log("AI Analysis complete.", "SUCCESS")
             
         except Exception as e:
