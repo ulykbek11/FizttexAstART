@@ -6,3 +6,5 @@ beautifulsoup4
 python-nmap
 python-whois
 colorama
+google-generativeai
+python-dotenv

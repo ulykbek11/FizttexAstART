@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Shield, AlertTriangle, CheckCircle, XCircle, Terminal, Activity, Lock, Globe, Server, Folder } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, XCircle, Terminal, Activity, Lock, Globe, Server, Folder, Bot } from 'lucide-react';
 
 function App() {
   const [domain, setDomain] = useState('');
@@ -156,6 +156,19 @@ function App() {
                 </div>
               )}
             </div>
+
+            {/* AI Analysis Card */}
+            {results && results.ai_feedback && (
+              <div className="bg-darker border border-gray-800 rounded-xl p-6 relative overflow-hidden mb-6">
+                <div className="flex items-center gap-2 mb-4 text-purple-400">
+                  <Bot size={24} />
+                  <h2 className="font-bold text-lg">AI Анализ</h2>
+                </div>
+                <div className="text-gray-300 text-sm whitespace-pre-wrap leading-relaxed">
+                  {results.ai_feedback}
+                </div>
+              </div>
+            )}
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-4">

@@ -50,6 +50,17 @@ try:
 except ImportError:
     BeautifulSoup = None
 
+try:
+    import google.generativeai as genai
+except ImportError:
+    genai = None
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -70,7 +81,8 @@ class UltimateSecurityAnalyzer:
             'headers_issues': [],
             'cms_detected': None,
             'technologies': [],
-            'security_score': 100
+            'security_score': 100,
+            'ai_feedback': None
         }
         self.session = requests.Session()
         self.session.headers.update({
@@ -181,6 +193,62 @@ class UltimateSecurityAnalyzer:
         await self.log(f"\n{'=' * 80}", "DEBUG")
         await self.log(f"{title}", "WARNING")
         await self.log(f"{'=' * 80}", "DEBUG")
+
+    async def generate_ai_feedback(self):
+        await self.print_banner("AI ANALYSIS (GEMINI)")
+        
+        if not genai:
+            await self.log("Google Generative AI library not installed.", "WARNING")
+            self.results['ai_feedback'] = "Google Generative AI library not installed."
+            return
+
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            # Fallback to look for OPENAI_API_KEY if user hasn't updated env yet
+            # But really we want GEMINI_API_KEY. We can be flexible.
+            api_key = os.getenv("OPENAI_API_KEY") # Try to use existing key slot if user pasted gemini key there
+            
+        if not api_key:
+            await self.log("GEMINI_API_KEY not found in environment variables.", "WARNING")
+            self.results['ai_feedback'] = "Please set GEMINI_API_KEY environment variable to enable AI analysis."
+            return
+
+        try:
+            genai.configure(api_key=api_key)
+            
+            # Prepare summary for AI
+            summary = {
+                "domain": self.domain,
+                "score": self.results['security_score'],
+                "critical_vulns": len(self.results['critical_vulns']),
+                "vulns": len(self.results['vulnerabilities']),
+                "open_ports": len(self.results['ports']),
+                "details": {
+                    "critical": self.results['critical_vulns'],
+                    "warnings": self.results['vulnerabilities'][:5] # Limit to top 5 to save tokens
+                }
+            }
+            
+            prompt = f"""
+            Analyze the following security scan results for {self.domain}:
+            {json.dumps(summary, indent=2)}
+            
+            Provide a concise security assessment, highlight the most critical risks, and suggest 3 key remediation steps.
+            Respond in Russian language.
+            """
+            
+            await self.log("Requesting AI analysis from Gemini...", "INFO")
+            
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            response = await asyncio.to_thread(model.generate_content, prompt)
+            
+            feedback = response.text
+            self.results['ai_feedback'] = feedback
+            await self.log("AI Analysis complete.", "SUCCESS")
+            
+        except Exception as e:
+            await self.log(f"AI Analysis failed: {str(e)}", "ERROR")
+            self.results['ai_feedback'] = f"AI Analysis failed: {str(e)}"
 
     async def check_dns(self):
         await self.print_banner("АНАЛИЗ DNS")
@@ -1152,6 +1220,8 @@ class UltimateSecurityAnalyzer:
                 await self.log(f"\n[+] OPEN PORTS ({len(open_ports)}):", "DEBUG")
                 for port in open_ports:
                     await self.log(f"    ● {port.get('port')}/{port.get('protocol', 'tcp')}: {port.get('service', '')}", "DEBUG")
+
+            await self.generate_ai_feedback()
 
             await self.save_results()
 
