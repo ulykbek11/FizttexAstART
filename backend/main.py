@@ -239,7 +239,7 @@ class UltimateSecurityAnalyzer:
             
             await self.log("Requesting AI analysis from Gemini...", "INFO")
             
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            model = genai.GenerativeModel('gemini-2.5-flash')
             response = await asyncio.to_thread(model.generate_content, prompt)
             
             feedback = response.text
